@@ -1,7 +1,10 @@
 import { asyncHandler } from "../utils/asyncHandler.js";
 import ApiError from "../utils/ApiError.js";
 import { User } from "../models/user.model.js";
-import { uploadOnCloudinary } from "../utils/cloudinary.js";
+import {
+  deleteFromCloudinary,
+  uploadOnCloudinary,
+} from "../utils/cloudinary.js";
 import ApiResponse from "../utils/ApiResponse.js";
 import jwt from "jsonwebtoken";
 
@@ -256,7 +259,8 @@ export const updateAccountDetails = asyncHandler(async (req, res) => {
 });
 
 export const updateUserAvatar = asyncHandler(async (req, res) => {
-  const avatarLocalPath = req.file?.path;
+  const avatarLocalPath = req?.files?.avatar[0]?.path;
+
   if (!avatarLocalPath) {
     throw new ApiError(400, "Avatar file missing");
   }
@@ -264,7 +268,11 @@ export const updateUserAvatar = asyncHandler(async (req, res) => {
   if (!avatar.url) {
     throw new ApiError(400, "Error while uploading avatar on cloudinary");
   }
-    // TODO: delete old avatar from cloudinary
+
+  // delete old avatar from cloudinary
+  const oldAvatarUrl = req?.user?.avatar;
+  await deleteFromCloudinary(oldAvatarUrl);
+
   const updatedUser = await User.findByIdAndUpdate(
     req?.user._id,
     {
@@ -280,7 +288,7 @@ export const updateUserAvatar = asyncHandler(async (req, res) => {
 });
 
 export const updateUserCoverImage = asyncHandler(async (req, res) => {
-  const coverImageLocalPath = req.file?.path;
+  const coverImageLocalPath = req?.files?.coverImage[0]?.path;
   if (!coverImageLocalPath) {
     throw new ApiError(400, "Cover Image file missing");
   }
@@ -288,7 +296,11 @@ export const updateUserCoverImage = asyncHandler(async (req, res) => {
   if (!coverImage.url) {
     throw new ApiError(400, "Error while uploading Cover Image on cloudinary");
   }
-  // TODO: delete old cover image from cloudinary
+
+  // delete old cover image from cloudinary
+  const oldCoverImageUrl = req?.user?.coverImage;
+  await deleteFromCloudinary(oldCoverImageUrl);
+
   const updatedUser = await User.findByIdAndUpdate(
     req?.user._id,
     {
