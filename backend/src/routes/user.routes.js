@@ -1,6 +1,7 @@
 import { Router } from "express";
 import {
   changeCurrentPassword,
+  getChannel,
   getCurrentUser,
   loginUser,
   logoutUser,
@@ -34,8 +35,8 @@ router.route("/logout").post(verifyJwt, logoutUser);
 router.route("/change-password").post(verifyJwt, changeCurrentPassword);
 router.route("/refreshToken").post(refreshAccessToken);
 router.route("/getUser").post(verifyJwt, getCurrentUser);
-router.route("/updateUser").post(verifyJwt, updateAccountDetails);
-router.route("/updateAvatar").post(
+router.route("/updateUser").patch(verifyJwt, updateAccountDetails);
+router.route("/updateAvatar").patch(
   verifyJwt,
   upload.fields([
     {
@@ -45,7 +46,7 @@ router.route("/updateAvatar").post(
   ]),
   updateUserAvatar
 );
-router.route("/updateCoverImage").post(
+router.route("/updateCoverImage").patch(
   verifyJwt,
   upload.fields([
     {
@@ -55,5 +56,6 @@ router.route("/updateCoverImage").post(
   ]),
   updateUserCoverImage
 );
+router.route("/getChannel/:username").get(getChannel);
 
 export default router;
